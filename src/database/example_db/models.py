@@ -14,3 +14,4 @@ class Person(models.Model): # Inherits from django's Model class
 class FacebookUser(models.Model):
     email = models.EmailField()
     profile_img = models.ImageField(upload_to="/path/to/media/uploads/")
+    access_token = models.CharField(max_length=256)
