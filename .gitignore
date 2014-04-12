@@ -1,0 +1,6 @@
+*.py[co~]
+*.idea
+*.db
+*.DS_STORE
+
+src/clients/media/
