@@ -2,5 +2,7 @@
 *.idea
 *.db
 *.DS_STORE
+*.swp
+*.sqlite3
 
 src/clients/media/
