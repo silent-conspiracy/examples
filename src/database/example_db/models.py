@@ -1,70 +1,66 @@
+from django.contrib.auth.models import User
 from django.db import models
 
-# Create your models here.
+
+class Customer(models.Model):
+    user = models.OneToOneField(User)
+    facebook_profile = models.OneToOneField(FacebookProfile)
+    phone_number = models.IntegerField(max_length=8)
+    email = models.EmailField() # Possible duplicate with Facebook, but can have different email.
 
 
-class Person(models.Model):  # Inherits from django's Model class
+class FacebookProfile(models.Model):  # Inherits from django's Model class
     first_name = models.CharField(max_length=30)  # Character field with length 30
     last_name = models.CharField(max_length=30)
-    #fb_account = models.OneToOneField(FacebookUser)  # Relates person to his fb
-    last_login = models.DateTimeField(auto_now_add=True)
+    email = models.EmailField()
+    access_token = models.CharField(max_length=128)
+    profile_img_url = models.URLField()
     last_modified = models.DateTimeField(auto_now=True)
-    date_created = models.DateTimeField(auto_now_add=True)
-
-#class FacebookUser(models.Model):
-#    email = models.EmailField()
-#    profile_img = models.ImageField(upload_to="/path/to/media/uploads/")
-#    access_token = models.CharField(max_length=256)
+    datetime_created = models.DateTimeField(auto_now_add=True)
 
 
-class Diner(models.Model):
-    diner_num = models.AutoField(primary_key=True)
-    diner_name = models.CharField(max_length=30)
-    diner_address = models.CharField(max_length=30)
-    diner_website = models.URLField(max_length=100)
+class Restaurant(models.Model):
+    name = models.CharField(max_length=255)
+    address = models.TextField()
+    website = models.URLField(max_length=100)
 
 
 class Table(models.Model):
-    table_num= models.AutoField(primary_key=True)
-    diner=models.ForeignKey(Diner)
+    number = models.IntegerField()
+    restaurant = models.ForeignKey(Restaurant)
 
 
-class Service(models.Model):
-    service_id= models.AutoField(primary_key=True)
-    table=models.ForeignKey(Table)
-
-
-class Customer(Person):
-    customer_num = models.AutoField(primary_key=True)
-    phone_number = models.IntegerField(max_length=8)
+class Service(models.Model): # Like an order session
+    table = models.ForeignKey(Table)
 
 
 class Menu(models.Model):
-    menu_num = models.AutoField(primary_key=True)
-    diner=models.ForeignKey(Diner)
-    menu_name=models.CharField(max_length=30)
+    restaurant = models.ForeignKey(Restaurant)
+    name = models.CharField(max_length=50)
+    description = models.TextField()
 
 
 class MenuItem(models.Model):
-    menu_item_num = models.AutoField(primary_key=True)
-    menu=models.ForeignKey(Menu)
-    menu_item_name = models.CharField(max_length=30)
+    menu = models.ForeignKey(Menu)
+    name = models.CharField(max_length=50)
+    description = models.TextField()
 
 
 class Order(models.Model):
-    order_num= models.AutoField(primary_key=True)
-    date_created = models.DateTimeField(auto_now_add=True)
-    #2 foreign keys to customer and menu, one to many relationship
     customer = models.ForeignKey(Customer)
-    service=models.ForeignKey(Service)
+    service = models.ForeignKey(Service)
+    last_modified = models.DateTimeField(auto_now=True)
+    datetime_created = models.DateTimeField(auto_now_add=True)
 
 
 class OrderItem(models.Model):
-    menu_item=models.OneToOneField(MenuItem, primary_key=True)
-    order=models.ForeignKey(Order)
+    order = models.ForeignKey(Order)
+    menu_item = models.ForeignKey(MenuItem)
     quantity = models.IntegerField(max_length=100)
 
 
 class Bill(models.Model):
-    bill_num=models.AutoField(primary_key=True)
-    service=models.ForeignKey(Service)
+    service = models.ForeignKey(Service)
+    customer = models.ForeignKey(Customer, blank=True)
+    payment_amount = models.IntegerField()
+    payment_datetime = models.DateTimeField(auto_now_add=True)
